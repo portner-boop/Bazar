@@ -1,7 +1,7 @@
 package aiagents.bazar.api.controller;
 
-import aiagents.bazar.api.dto.TelegramUserResponseDto;
-import aiagents.bazar.api.dto.TelegramUserUpdateDto;
+import aiagents.bazar.api.dto.telegramuser.TelegramUserResponseDto;
+import aiagents.bazar.api.dto.telegramuser.TelegramUserUpdateDto;
 import aiagents.bazar.api.service.TelegramUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class TelegramUserController {
 

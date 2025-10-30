@@ -1,4 +1,4 @@
-package aiagents.bazar.api.dto;
+package aiagents.bazar.api.dto.telegramuser;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package aiagents.bazar.api.config;
+package aiagents.bazar.api.config.telegramuser;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

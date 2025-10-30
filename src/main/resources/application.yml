@@ -1,16 +1,15 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bazar?currentSchema=bazar
+    url: jdbc:postgresql://localhost:5432/bazar
     username: user
     password: user
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: bazar
     show-sql: true
     open-in-view: false
 bot:

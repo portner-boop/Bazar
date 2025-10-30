@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -49,5 +50,11 @@ public class TelegramUser {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "telegramUser",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Task> tasks;
+
+    @OneToMany(mappedBy = "telegramUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Claim> claims;
 
 }

@@ -1,4 +1,4 @@
-package aiagents.bazar.api.exeption;
+package aiagents.bazar.api.exeption.telegramuser;
 
 public class NotFoundUserException extends RuntimeException {
     public NotFoundUserException(String s) {

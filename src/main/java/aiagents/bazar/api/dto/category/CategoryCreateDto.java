@@ -1,4 +1,4 @@
-package aiagents.bazar.api.dto;
+package aiagents.bazar.api.dto.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TelegramUserUpdateDto {
-    private String firstName;
-    private String lastName;
-    private String email;
+public class CategoryCreateDto {
+    private String name;
+    private String description;
 }

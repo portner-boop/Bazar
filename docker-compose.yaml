@@ -1,16 +1,43 @@
+version: '3.9'
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:15
     container_name: postgres_db
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: user
       POSTGRES_DB: bazar
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - bazar-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: bazar_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bazar
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: user
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - bazar-network
 
 volumes:
   pgdata:
+
+networks:
+  bazar-network:
