@@ -22,9 +22,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDto create(CategoryCreateDto dto) {
-        Category category = new Category();
-        category.setName(dto.getName());
-        category.setDescription(dto.getDescription());
+        Category category = mapper.fromCreateDto(dto);
         Category saved = repository.save(category);
         return mapper.toResponseDTO(saved);
     }

@@ -43,14 +43,17 @@ public class Task {
     @Column(name = "reward_percentage", precision = 5, scale = 2)
     private BigDecimal rewardPercentage;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reward_type", length = 50)
-    private String rewardType;
+    private RewardType rewardType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private String status;
+    private TaskStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "escrow_status", length = 50)
-    private String escrowStatus;
+    private EscrowStatus escrowStatus;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp

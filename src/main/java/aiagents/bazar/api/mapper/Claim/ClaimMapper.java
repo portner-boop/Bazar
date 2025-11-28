@@ -1,9 +1,12 @@
 package aiagents.bazar.api.mapper.Claim;
 
+import aiagents.bazar.api.dto.claim.ClaimCreateDto;
 import aiagents.bazar.api.dto.claim.ClaimResponseDto;
 import aiagents.bazar.api.dto.claim.ClaimUpdateDto;
 import aiagents.bazar.data.entity.Claim;
-import org.mapstruct.*;
+import aiagents.bazar.data.entity.ClaimStatus;
+import aiagents.bazar.data.entity.Task;
+import aiagents.bazar.data.entity.TelegramUser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,5 +32,18 @@ public class ClaimMapper {
 
         if (dto.getStatus() != null) claim.setStatus(dto.getStatus());
         if (dto.getMessage() != null) claim.setMessage(dto.getMessage());
+    }
+
+    public Claim fromCreateDto(ClaimCreateDto dto, Task task, TelegramUser user) {
+        if (dto == null || task == null || user == null) {
+            throw new IllegalArgumentException("ClaimCreateDto, task and user must be non-null");
+        }
+
+        Claim claim = new Claim();
+        claim.setStatus(ClaimStatus.PENDING);
+        claim.setMessage(dto.getMessage());
+        claim.setTask(task);
+        claim.setTelegramUser(user);
+        return claim;
     }
 }

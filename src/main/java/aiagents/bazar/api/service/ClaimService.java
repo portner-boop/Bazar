@@ -38,12 +38,7 @@ public class ClaimService {
         TelegramUser user = telegramUserRepository.findById(dto.getTelegramUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Claim claim = new Claim();
-        claim.setStatus("PENDING");
-        claim.setMessage(dto.getMessage());
-        claim.setTask(task);
-        claim.setTelegramUser(user);
-
+        Claim claim = mapper.fromCreateDto(dto, task, user);
         Claim saved = claimRepository.save(claim);
         return mapper.toResponseDto(saved);
     }

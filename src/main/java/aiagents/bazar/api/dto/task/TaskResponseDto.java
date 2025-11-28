@@ -1,6 +1,10 @@
 package aiagents.bazar.api.dto.task;
 
+import aiagents.bazar.data.entity.EscrowStatus;
+import aiagents.bazar.data.entity.RewardType;
+import aiagents.bazar.data.entity.TaskStatus;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -16,9 +20,9 @@ public class TaskResponseDto {
     private BigDecimal priceExpected;
     private BigDecimal rewardAmount;
     private BigDecimal rewardPercentage;
-    private String rewardType;
-    private String status;
-    private String escrowStatus;
+    private RewardType rewardType;
+    private TaskStatus status;
+    private EscrowStatus escrowStatus;
     private Long categoryId;
     private Long telegramUserId;
     private LocalDateTime createdAt;

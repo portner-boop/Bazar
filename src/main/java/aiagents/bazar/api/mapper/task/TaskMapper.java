@@ -1,9 +1,9 @@
 package aiagents.bazar.api.mapper.task;
 
+import aiagents.bazar.api.dto.task.TaskCreateDto;
 import aiagents.bazar.api.dto.task.TaskResponseDto;
 import aiagents.bazar.api.dto.task.TaskUpdateDto;
-import aiagents.bazar.data.entity.Task;
-import org.mapstruct.*;
+import aiagents.bazar.data.entity.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,5 +44,25 @@ public class TaskMapper {
         if (dto.getRewardType() != null) task.setRewardType(dto.getRewardType());
         if (dto.getStatus() != null) task.setStatus(dto.getStatus());
         if (dto.getEscrowStatus() != null) task.setEscrowStatus(dto.getEscrowStatus());
+    }
+
+    public Task fromCreateDto(TaskCreateDto dto, Category category, TelegramUser creator) {
+        if (dto == null || category == null || creator == null) {
+            throw new IllegalArgumentException("TaskCreateDto, category and creator must be non-null");
+        }
+
+        Task task = new Task();
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setRegion(dto.getRegion());
+        task.setPriceExpected(dto.getPriceExpected());
+        task.setRewardAmount(dto.getRewardAmount());
+        task.setRewardPercentage(dto.getRewardPercentage());
+        task.setRewardType(dto.getRewardType() != null ? dto.getRewardType() : RewardType.FIXED_AMOUNT);
+        task.setStatus(dto.getStatus() != null ? dto.getStatus() : TaskStatus.NEW);
+        task.setEscrowStatus(dto.getEscrowStatus() != null ? dto.getEscrowStatus() : EscrowStatus.NOT_REQUIRED);
+        task.setCategory(category);
+        task.setTelegramUser(creator);
+        return task;
     }
 }

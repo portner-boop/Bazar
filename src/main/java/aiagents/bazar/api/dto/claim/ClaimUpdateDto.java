@@ -1,5 +1,6 @@
 package aiagents.bazar.api.dto.claim;
 
+import aiagents.bazar.data.entity.ClaimStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClaimUpdateDto {
-    private String status;
+    private ClaimStatus status;
     private String message;
 }

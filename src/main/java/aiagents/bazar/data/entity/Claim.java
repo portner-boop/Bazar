@@ -21,8 +21,9 @@ public class Claim {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50, nullable = false)
-    private String status;
+    private ClaimStatus status;
 
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;

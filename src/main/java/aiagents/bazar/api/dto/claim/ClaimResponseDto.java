@@ -1,5 +1,6 @@
 package aiagents.bazar.api.dto.claim;
 
+import aiagents.bazar.data.entity.ClaimStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ClaimResponseDto {
     private Long id;
-    private String status;
+    private ClaimStatus status;
     private String message;
     private Long taskId;
     private Long telegramUserId;

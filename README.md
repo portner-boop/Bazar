@@ -64,6 +64,27 @@ docker-compose up --build
   - создает пользователя, если Telegram ID еще не зарегистрирован;
   - возвращает сообщение о статусе регистрации.
 
+### Модель домена и статусы
+
+- `TelegramUser`
+  - Связан с `Task` (созданные задания) и `Claim` (заявки).
+  - Ключевое поле: `telegramId` — уникальный идентификатор пользователя в Telegram.
+- `Category`
+  - Классифицирует задания (`Task`), связь один-ко-многим.
+- `Task`
+  - Имеет ссылку на `Category` и `TelegramUser` (кто создал).
+  - Важные поля:
+    - `rewardType` (`RewardType`): тип вознаграждения (`FIXED_AMOUNT`, `PERCENTAGE`, `MIXED`).
+    - `status` (`TaskStatus`): состояние задания (`NEW`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`).
+    - `escrowStatus` (`EscrowStatus`): состояние эскроу (`NOT_REQUIRED`, `PENDING`, `FUNDED`, `RELEASED`, `DISPUTED`).
+- `Claim`
+  - Связана с `Task` и `TelegramUser` (кто подал заявку).
+  - `status` (`ClaimStatus`): `PENDING`, `APPROVED`, `REJECTED`.
+
+Все статусы и типы вознаграждения вынесены в `enum`, что:
+- запрещает записывать произвольные строки в БД;
+- явно ограничивает допустимые состояния и делает API самодокументируемым (видно в Swagger).
+
 ### Обработка ошибок и валидация
 
 - Используется **Bean Validation** (`jakarta.validation`) для DTO и сущностей.

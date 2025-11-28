@@ -33,18 +33,7 @@ public class TaskService {
         TelegramUser creator = telegramUserRepository.findById(dto.getTelegramUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Task task = new Task();
-        task.setTitle(dto.getTitle());
-        task.setDescription(dto.getDescription());
-        task.setRegion(dto.getRegion());
-        task.setPriceExpected(dto.getPriceExpected());
-        task.setRewardAmount(dto.getRewardAmount());
-        task.setRewardPercentage(dto.getRewardPercentage());
-        task.setRewardType(dto.getRewardType());
-        task.setStatus(dto.getStatus());
-        task.setEscrowStatus(dto.getEscrowStatus());
-        task.setCategory(category);
-        task.setTelegramUser(creator);
+        Task task = mapper.fromCreateDto(dto, category, creator);
 
         Task saved = taskRepository.save(task);
         return mapper.toResponseDTO(saved);
