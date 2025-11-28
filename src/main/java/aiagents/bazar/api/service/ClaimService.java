@@ -18,9 +18,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,64 +32,58 @@ public class ClaimService {
     private final EntityManager entityManager;
 
     @Transactional
-    public Mono<ClaimResponseDto> create(ClaimCreateDto dto) {
-        return Mono.fromCallable(() -> {
-            Task task = taskRepository.findById(dto.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("Task not found"));
-            TelegramUser user = telegramUserRepository.findById(dto.getTelegramUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    public ClaimResponseDto create(ClaimCreateDto dto) {
+        Task task = taskRepository.findById(dto.getTaskId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        TelegramUser user = telegramUserRepository.findById(dto.getTelegramUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Claim claim = new Claim();
-            claim.setStatus("PENDING");
-            claim.setMessage(dto.getMessage());
-            claim.setTask(task);
-            claim.setTelegramUser(user);
+        Claim claim = new Claim();
+        claim.setStatus("PENDING");
+        claim.setMessage(dto.getMessage());
+        claim.setTask(task);
+        claim.setTelegramUser(user);
 
-            Claim saved = claimRepository.save(claim);
-            return mapper.toResponseDto(saved);
-        }).subscribeOn(Schedulers.boundedElastic());
+        Claim saved = claimRepository.save(claim);
+        return mapper.toResponseDto(saved);
     }
 
     @Transactional
-    public Flux<ClaimResponseDto> getAll(String status, Long taskId, Long telegramUserId) {
-        return Mono.fromCallable(() -> {
-                    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    CriteriaQuery<Claim> cq = cb.createQuery(Claim.class);
-                    Root<Claim> root = cq.from(Claim.class);
+    public List<ClaimResponseDto> getAll(String status, Long taskId, Long telegramUserId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Claim> cq = cb.createQuery(Claim.class);
+        Root<Claim> root = cq.from(Claim.class);
 
-                    Predicate predicate = cb.conjunction();
-                    if (status != null) predicate = cb.and(predicate, cb.equal(root.get("status"), status));
-                    if (taskId != null) predicate = cb.and(predicate, cb.equal(root.get("task").get("id"), taskId));
-                    if (telegramUserId != null) predicate = cb.and(predicate, cb.equal(root.get("telegramUser").get("id"), telegramUserId));
+        Predicate predicate = cb.conjunction();
+        if (status != null) predicate = cb.and(predicate, cb.equal(root.get("status"), status));
+        if (taskId != null) predicate = cb.and(predicate, cb.equal(root.get("task").get("id"), taskId));
+        if (telegramUserId != null)
+            predicate = cb.and(predicate, cb.equal(root.get("telegramUser").get("id"), telegramUserId));
 
-                    cq.where(predicate);
-                    return entityManager.createQuery(cq).getResultList();
-                }).flatMapMany(claims -> Flux.fromIterable(claims)
-                        .map(mapper::toResponseDto))
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
-    @Transactional
-    public Mono<ClaimResponseDto> getById(Long id) {
-        return Mono.fromCallable(() -> claimRepository.findById(id)
+        cq.where(predicate);
+        return entityManager.createQuery(cq).getResultList().stream()
                 .map(mapper::toResponseDto)
-                .orElseThrow(() -> new RuntimeException("Claim not found")));
+                .toList();
     }
 
     @Transactional
-    public Mono<ClaimResponseDto> update(Long id, ClaimUpdateDto dto) {
-        return Mono.fromCallable(() -> {
-            Claim claim = claimRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Claim not found"));
-            mapper.updateFromDto(dto, claim);
-            Claim updated = claimRepository.save(claim);
-            return mapper.toResponseDto(updated);
-        }).subscribeOn(Schedulers.boundedElastic());
+    public ClaimResponseDto getById(Long id) {
+        return claimRepository.findById(id)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new RuntimeException("Claim not found"));
     }
 
     @Transactional
-    public Mono<Void> delete(Long id) {
-        return Mono.fromRunnable(() -> claimRepository.deleteById(id))
-                .subscribeOn(Schedulers.boundedElastic()).then();
+    public ClaimResponseDto update(Long id, ClaimUpdateDto dto) {
+        Claim claim = claimRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Claim not found"));
+        mapper.updateFromDto(dto, claim);
+        Claim updated = claimRepository.save(claim);
+        return mapper.toResponseDto(updated);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        claimRepository.deleteById(id);
     }
 }

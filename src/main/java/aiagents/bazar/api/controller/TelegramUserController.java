@@ -3,33 +3,38 @@ package aiagents.bazar.api.controller;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserResponseDto;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserUpdateDto;
 import aiagents.bazar.api.service.TelegramUserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Validated
 public class TelegramUserController {
 
     private final TelegramUserService service;
 
     @GetMapping
-    public Flux<TelegramUserResponseDto> getAllUsers() {
-        return service.getAllUsers();
+    public ResponseEntity<List<TelegramUserResponseDto>> getAllUsers() {
+        return ResponseEntity.ok(service.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public Mono<TelegramUserResponseDto> getUserById(@PathVariable Long id) {
-        return service.getUserById(id);
+    public ResponseEntity<TelegramUserResponseDto> getUserById(@PathVariable @Positive Long id) {
+        return ResponseEntity.ok(service.getUserById(id));
     }
 
     @PutMapping("/{id}")
-    public Mono<TelegramUserResponseDto> updateUser(
-            @PathVariable Long id,
-            @RequestBody TelegramUserUpdateDto updateDto
+    public ResponseEntity<TelegramUserResponseDto> updateUser(
+            @PathVariable @Positive Long id,
+            @Valid @RequestBody TelegramUserUpdateDto updateDto
     ) {
-        return service.updateUser(id, updateDto);
+        return ResponseEntity.ok(service.updateUser(id, updateDto));
     }
 }

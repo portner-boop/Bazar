@@ -10,9 +10,6 @@ import aiagents.bazar.data.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -24,50 +21,43 @@ public class CategoryService {
     private final CategoryMapper mapper;
 
     @Transactional
-    public Mono<CategoryResponseDto> create(CategoryCreateDto dto) {
-        return Mono.fromCallable(() -> {
-            Category category = new Category();
-            category.setName(dto.getName());
-            category.setDescription(dto.getDescription());
-            Category saved = repository.save(category);
-            return mapper.toResponseDTO(saved);
-        }).subscribeOn(Schedulers.boundedElastic());
+    public CategoryResponseDto create(CategoryCreateDto dto) {
+        Category category = new Category();
+        category.setName(dto.getName());
+        category.setDescription(dto.getDescription());
+        Category saved = repository.save(category);
+        return mapper.toResponseDTO(saved);
     }
 
     @Transactional
-    public Flux<CategoryResponseDto> getAll() {
-        List<Category> categories = repository.findAll();
-        return Flux.fromIterable(categories)
-                .map(mapper::toResponseDTO);
-    }
-
-    @Transactional
-    public Mono<CategoryResponseDto> getById(Long id) {
-        return Mono.fromCallable(() -> repository.findById(id)
+    public List<CategoryResponseDto> getAll() {
+        return repository.findAll().stream()
                 .map(mapper::toResponseDTO)
-                .orElseThrow(() -> new NotFoundCategoryException("Category not found with id: " + id))
-        ).subscribeOn(Schedulers.boundedElastic());
+                .toList();
     }
 
     @Transactional
-    public Mono<CategoryResponseDto> update(Long id, CategoryUpdateDto dto) {
-        return Mono.fromCallable(() -> {
-            Category category = repository.findById(id)
-                    .orElseThrow(() -> new NotFoundCategoryException("Category not found with id: " + id));
-            mapper.updateFromDto(dto, category);
-            Category updated = repository.save(category);
-            return mapper.toResponseDTO(updated);
-        }).subscribeOn(Schedulers.boundedElastic());
+    public CategoryResponseDto getById(Long id) {
+        return repository.findById(id)
+                .map(mapper::toResponseDTO)
+                .orElseThrow(() -> new NotFoundCategoryException("Category not found with id: " + id));
     }
 
     @Transactional
-    public Mono<Void> delete(Long id) {
-        return Mono.fromRunnable(() -> {
-            if (!repository.existsById(id)) {
-                throw new NotFoundCategoryException("Category not found with id: " + id);
-            }
-            repository.deleteById(id);
-        }).subscribeOn(Schedulers.boundedElastic()).then();
+    public CategoryResponseDto update(Long id, CategoryUpdateDto dto) {
+        Category category = repository.findById(id)
+                .orElseThrow(() -> new NotFoundCategoryException("Category not found with id: " + id));
+        mapper.updateFromDto(dto, category);
+        Category updated = repository.save(category);
+        return mapper.toResponseDTO(updated);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new NotFoundCategoryException("Category not found with id: " + id);
+        }
+        repository.deleteById(id);
     }
 }
 

@@ -14,9 +14,6 @@ import aiagents.bazar.data.repository.TelegramUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -30,54 +27,49 @@ public class TaskService {
     private final TaskMapper mapper;
 
     @Transactional
-    public Mono<TaskResponseDto> createTask(TaskCreateDto dto) {
-        return Mono.fromCallable(() -> {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
-            TelegramUser creator = telegramUserRepository.findById(dto.getTelegramUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    public TaskResponseDto createTask(TaskCreateDto dto) {
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        TelegramUser creator = telegramUserRepository.findById(dto.getTelegramUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Task task = new Task();
-            task.setTitle(dto.getTitle());
-            task.setDescription(dto.getDescription());
-            task.setRegion(dto.getRegion());
-            task.setPriceExpected(dto.getPriceExpected());
-            task.setRewardAmount(dto.getRewardAmount());
-            task.setRewardPercentage(dto.getRewardPercentage());
-            task.setRewardType(dto.getRewardType());
-            task.setStatus(dto.getStatus());
-            task.setEscrowStatus(dto.getEscrowStatus());
-            task.setCategory(category);
-            task.setTelegramUser(creator);
+        Task task = new Task();
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setRegion(dto.getRegion());
+        task.setPriceExpected(dto.getPriceExpected());
+        task.setRewardAmount(dto.getRewardAmount());
+        task.setRewardPercentage(dto.getRewardPercentage());
+        task.setRewardType(dto.getRewardType());
+        task.setStatus(dto.getStatus());
+        task.setEscrowStatus(dto.getEscrowStatus());
+        task.setCategory(category);
+        task.setTelegramUser(creator);
 
-            Task saved = taskRepository.save(task);
-            return mapper.toResponseDTO(saved);
-        }).subscribeOn(Schedulers.boundedElastic());
+        Task saved = taskRepository.save(task);
+        return mapper.toResponseDTO(saved);
     }
 
     @Transactional
-    public Flux<TaskResponseDto> getAllTasks() {
-        List<Task> tasks = taskRepository.findAll();
-        return Flux.fromIterable(tasks)
-                .map(mapper::toResponseDTO);
+    public List<TaskResponseDto> getAllTasks() {
+        return taskRepository.findAll().stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional
-    public Mono<TaskResponseDto> getTaskById(Long id) {
-        return Mono.fromCallable(() -> taskRepository.findById(id)
-                        .map(mapper::toResponseDTO)
-                        .orElseThrow(() -> new NotFoundTaskException("Task not found with id: " + id)))
-                .subscribeOn(Schedulers.boundedElastic());
+    public TaskResponseDto getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .map(mapper::toResponseDTO)
+                .orElseThrow(() -> new NotFoundTaskException("Task not found with id: " + id));
     }
 
     @Transactional
-    public Mono<TaskResponseDto> updateTask(Long id, TaskUpdateDto dto) {
-        return Mono.fromCallable(() -> {
-            Task task = taskRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundTaskException("Task not found with id: " + id));
-            mapper.updateFromDto(dto, task);
-            Task updated = taskRepository.save(task);
-            return mapper.toResponseDTO(updated);
-        }).subscribeOn(Schedulers.boundedElastic());
+    public TaskResponseDto updateTask(Long id, TaskUpdateDto dto) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundTaskException("Task not found with id: " + id));
+        mapper.updateFromDto(dto, task);
+        Task updated = taskRepository.save(task);
+        return mapper.toResponseDTO(updated);
     }
 }

@@ -10,9 +10,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -23,8 +20,12 @@ public class TelegramUserService {
     private final TelegramUserMapper telegramUserMapper;
     private final TelegramUserRepository telegramUserRepository;
 
+    @Transactional
     public boolean createUserIfNotExist(User user) {
-        if(telegramUserRepository.existsByUserName(user.getUserName())){
+        if (user == null || user.getId() == null) {
+            return false;
+        }
+        if (telegramUserRepository.existsByTelegramId(user.getId())) {
             return false;
         }
         TelegramUser telegramUser = telegramUserMapper.toTelegramUser(user);
@@ -32,29 +33,26 @@ public class TelegramUserService {
         return true;
     }
     @Transactional
-    public Flux<TelegramUserResponseDto> getAllUsers() {
-        List<TelegramUser> users = telegramUserRepository.findAll();
-        return Flux.fromIterable(users)
-                .map(telegramUserMapper::toResponseDTO);
+    public List<TelegramUserResponseDto> getAllUsers() {
+        return telegramUserRepository.findAll().stream()
+                .map(telegramUserMapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional
-    public Mono<TelegramUserResponseDto> getUserById(Long id) {
-        return Mono.fromCallable(() -> telegramUserRepository
-                        .findById(id)
-                        .map(telegramUserMapper::toResponseDTO)
-                        .orElseThrow(() -> new NotFoundUserException("Not found user with id: " + id)))
-                .subscribeOn(Schedulers.boundedElastic());
+    public TelegramUserResponseDto getUserById(Long id) {
+        return telegramUserRepository
+                .findById(id)
+                .map(telegramUserMapper::toResponseDTO)
+                .orElseThrow(() -> new NotFoundUserException("Not found user with id: " + id));
     }
 
     @Transactional
-    public Mono<TelegramUserResponseDto> updateUser(Long id, TelegramUserUpdateDto updateDto) {
-        return Mono.fromCallable(() -> {
-            TelegramUser user = telegramUserRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundUserException("Not found user with id: " + id));
-            telegramUserMapper.updateFromDto(updateDto, user);
-            TelegramUser updated = telegramUserRepository.save(user);
-            return telegramUserMapper.toResponseDTO(updated);
-        }).subscribeOn(Schedulers.boundedElastic());
+    public TelegramUserResponseDto updateUser(Long id, TelegramUserUpdateDto updateDto) {
+        TelegramUser user = telegramUserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundUserException("Not found user with id: " + id));
+        telegramUserMapper.updateFromDto(updateDto, user);
+        TelegramUser updated = telegramUserRepository.save(user);
+        return telegramUserMapper.toResponseDTO(updated);
     }
 }

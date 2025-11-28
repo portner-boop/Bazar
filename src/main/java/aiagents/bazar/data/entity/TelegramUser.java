@@ -2,6 +2,10 @@ package aiagents.bazar.data.entity;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,33 +29,41 @@ public class TelegramUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "telegram_id",nullable = false, unique = true)
+    @NotNull
+    @Column(name = "telegram_id", nullable = false, unique = true)
     private Long telegramId;
 
-    @Column(name = "user_name",nullable = false)
+    @Size(max = 255)
+    @Column(name = "user_name")
     private String userName;
 
+    @Size(max = 255)
     @Column(name = "first_name")
     private String firstName;
 
+    @Size(max = 255)
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "language_code",nullable = false)
+    @NotBlank
+    @Size(max = 10)
+    @Column(name = "language_code", nullable = false)
     private String languageCode;
 
+    @Email
+    @Size(max = 255)
     @Column(name = "email")
     private String email;
 
-    @Column(name = "created_at",nullable = false)
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "telegramUser",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "telegramUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     @OneToMany(mappedBy = "telegramUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

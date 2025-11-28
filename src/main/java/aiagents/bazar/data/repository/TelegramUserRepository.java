@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TelegramUserRepository extends JpaRepository<TelegramUser, Long> {
 
-    boolean existsByUserName(String userName);
+    boolean existsByTelegramId(Long telegramId);
 
 }

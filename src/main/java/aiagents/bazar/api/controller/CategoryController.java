@@ -4,40 +4,50 @@ import aiagents.bazar.api.dto.category.CategoryCreateDto;
 import aiagents.bazar.api.dto.category.CategoryResponseDto;
 import aiagents.bazar.api.dto.category.CategoryUpdateDto;
 import aiagents.bazar.api.service.CategoryService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@Validated
 public class CategoryController {
 
     private final CategoryService service;
 
     @PostMapping
-    public Mono<CategoryResponseDto> create(@RequestBody CategoryCreateDto dto) {
-        return service.create(dto);
+    public ResponseEntity<CategoryResponseDto> create(@Valid @RequestBody CategoryCreateDto dto) {
+        CategoryResponseDto created = service.create(dto);
+        return ResponseEntity.created(URI.create("/api/v1/categories/" + created.getId()))
+                .body(created);
     }
 
     @GetMapping
-    public Flux<CategoryResponseDto> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<CategoryResponseDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public Mono<CategoryResponseDto> getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<CategoryResponseDto> getById(@PathVariable @Positive Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PutMapping("/{id}")
-    public Mono<CategoryResponseDto> update(@PathVariable Long id, @RequestBody CategoryUpdateDto dto) {
-        return service.update(id, dto);
+    public ResponseEntity<CategoryResponseDto> update(@PathVariable @Positive Long id,
+                                                      @Valid @RequestBody CategoryUpdateDto dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable Long id) {
-        return service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
