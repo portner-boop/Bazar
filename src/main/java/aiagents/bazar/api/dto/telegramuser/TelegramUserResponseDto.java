@@ -1,5 +1,6 @@
 package aiagents.bazar.api.dto.telegramuser;
 
+import aiagents.bazar.data.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class TelegramUserResponseDto {
     private String lastName;
     private String languageCode;
     private String email;
+    private UserRole role;
 }

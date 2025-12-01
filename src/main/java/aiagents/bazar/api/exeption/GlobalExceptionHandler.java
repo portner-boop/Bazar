@@ -1,6 +1,7 @@
 package aiagents.bazar.api.exeption;
 
 import aiagents.bazar.api.exeption.telegramuser.NotFoundUserException;
+import aiagents.bazar.api.exeption.telegramuser.UnauthorizedRoleException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -77,6 +78,22 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(UnauthorizedRoleException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorizedRole(
+            UnauthorizedRoleException ex,
+            HttpServletRequest request
+    ) {
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(Exception.class)

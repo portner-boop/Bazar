@@ -1,10 +1,14 @@
 package aiagents.bazar.api.mapper.task;
 
 import aiagents.bazar.api.dto.task.TaskCreateDto;
+import aiagents.bazar.api.dto.task.TaskImageResponseDto;
 import aiagents.bazar.api.dto.task.TaskResponseDto;
 import aiagents.bazar.api.dto.task.TaskUpdateDto;
 import aiagents.bazar.data.entity.*;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class TaskMapper {
@@ -28,6 +32,18 @@ public class TaskMapper {
 
         if (task.getCategory() != null) dto.setCategoryId(task.getCategory().getId());
         if (task.getTelegramUser() != null) dto.setTelegramUserId(task.getTelegramUser().getId());
+
+        // Map images if present
+        if (task.getImages() != null && !task.getImages().isEmpty()) {
+            List<TaskImageResponseDto> imageDtos = task.getImages().stream()
+                    .map(image -> TaskImageResponseDto.builder()
+                            .id(image.getId())
+                            .url(image.getUrl())
+                            .sortOrder(image.getSortOrder())
+                            .build())
+                    .collect(Collectors.toList());
+            dto.setImages(imageDtos);
+        }
 
         return dto;
     }

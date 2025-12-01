@@ -2,6 +2,7 @@ package aiagents.bazar.api.controller;
 
 import aiagents.bazar.api.dto.telegramuser.TelegramUserResponseDto;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserUpdateDto;
+import aiagents.bazar.api.dto.telegramuser.UserRoleUpdateDto;
 import aiagents.bazar.api.service.TelegramUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -36,5 +37,20 @@ public class TelegramUserController {
             @Valid @RequestBody TelegramUserUpdateDto updateDto
     ) {
         return ResponseEntity.ok(service.updateUser(id, updateDto));
+    }
+
+    @GetMapping("/telegram/{telegramUserId}")
+    public ResponseEntity<TelegramUserResponseDto> getUserByTelegramId(
+            @PathVariable @Positive Long telegramUserId){
+        return ResponseEntity.ok(service.getUserByTelegramId(telegramUserId));
+    }
+
+    @PutMapping("/{targetUserId}/role")
+    public ResponseEntity<TelegramUserResponseDto> updateUserRole(
+            @PathVariable @Positive Long targetUserId,
+            @RequestParam @Positive Long adminId,
+            @Valid @RequestBody UserRoleUpdateDto dto
+    ) {
+        return ResponseEntity.ok(service.updateUserRole(adminId, targetUserId, dto));
     }
 }

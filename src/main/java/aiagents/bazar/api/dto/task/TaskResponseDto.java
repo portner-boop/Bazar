@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -27,4 +28,5 @@ public class TaskResponseDto {
     private Long telegramUserId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<TaskImageResponseDto> images;
 }

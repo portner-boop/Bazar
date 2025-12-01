@@ -3,6 +3,7 @@ package aiagents.bazar.api.mapper.telegramuser;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserResponseDto;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserUpdateDto;
 import aiagents.bazar.data.entity.TelegramUser;
+import aiagents.bazar.data.entity.UserRole;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -16,6 +17,7 @@ public class TelegramUserMapper {
         telegramUser.setUserName(user.getUserName());
         telegramUser.setTelegramId(user.getId());
         telegramUser.setLanguageCode(user.getLanguageCode());
+        telegramUser.setRole(UserRole.USER); // Default role for new users
         return telegramUser;
     }
 
@@ -30,6 +32,7 @@ public class TelegramUserMapper {
         dto.setLastName(user.getLastName());
         dto.setLanguageCode(user.getLanguageCode());
         dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
         return dto;
     }
 

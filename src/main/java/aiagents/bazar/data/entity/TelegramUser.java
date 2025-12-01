@@ -15,6 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import aiagents.bazar.data.entity.UserRole;
 
 
 @AllArgsConstructor
@@ -68,5 +69,9 @@ public class TelegramUser {
 
     @OneToMany(mappedBy = "telegramUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Claim> claims;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role = UserRole.USER;
 
 }
