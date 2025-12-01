@@ -14,7 +14,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "claim")
+@Table(name = "claim", indexes = {
+    @Index(name = "idx_claim_status", columnList = "status"),
+    @Index(name = "idx_claim_task_id", columnList = "task_id"),
+    @Index(name = "idx_claim_telegram_user_id", columnList = "telegram_user_id"),
+    @Index(name = "idx_claim_created_at", columnList = "created_at"),
+    @Index(name = "idx_claim_task_status", columnList = "task_id, status")
+})
 public class Claim {
 
     @Id

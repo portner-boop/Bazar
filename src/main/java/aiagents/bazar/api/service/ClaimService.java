@@ -17,6 +17,9 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,21 +47,43 @@ public class ClaimService {
     }
 
     @Transactional
-    public List<ClaimResponseDto> getAll(String status, Long taskId, Long telegramUserId) {
+    public Page<ClaimResponseDto> getAll(String status, Long taskId, Long telegramUserId, Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Claim> cq = cb.createQuery(Claim.class);
-        Root<Claim> root = cq.from(Claim.class);
 
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<Claim> countRoot = countQuery.from(Claim.class);
+        Predicate countPredicate = buildPredicate(cb, countRoot, status, taskId, telegramUserId);
+        countQuery.select(cb.count(countRoot)).where(countPredicate);
+        Long total = entityManager.createQuery(countQuery).getSingleResult();
+
+        CriteriaQuery<Claim> dataQuery = cb.createQuery(Claim.class);
+        Root<Claim> root = dataQuery.from(Claim.class);
+
+        root.fetch("task", jakarta.persistence.criteria.JoinType.LEFT);
+        root.fetch("telegramUser", jakarta.persistence.criteria.JoinType.LEFT);
+        
+        Predicate predicate = buildPredicate(cb, root, status, taskId, telegramUserId);
+        dataQuery.where(predicate);
+        dataQuery.distinct(true);
+        List<Claim> results = entityManager.createQuery(dataQuery)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+        
+        List<ClaimResponseDto> content = results.stream()
+                .map(mapper::toResponseDto)
+                .toList();
+        
+        return new PageImpl<>(content, pageable, total);
+    }
+    
+    private Predicate buildPredicate(CriteriaBuilder cb, Root<Claim> root, String status, Long taskId, Long telegramUserId) {
         Predicate predicate = cb.conjunction();
         if (status != null) predicate = cb.and(predicate, cb.equal(root.get("status"), status));
         if (taskId != null) predicate = cb.and(predicate, cb.equal(root.get("task").get("id"), taskId));
         if (telegramUserId != null)
             predicate = cb.and(predicate, cb.equal(root.get("telegramUser").get("id"), telegramUserId));
-
-        cq.where(predicate);
-        return entityManager.createQuery(cq).getResultList().stream()
-                .map(mapper::toResponseDto)
-                .toList();
+        return predicate;
     }
 
     @Transactional

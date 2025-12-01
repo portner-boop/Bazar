@@ -13,6 +13,10 @@ import aiagents.bazar.data.repository.TaskRepository;
 import aiagents.bazar.data.repository.TelegramUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +31,7 @@ public class TaskService {
     private final TaskMapper mapper;
 
     @Transactional
+    @CacheEvict(value = {"tasks", "task"}, allEntries = true)
     public TaskResponseDto createTask(TaskCreateDto dto) {
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -40,13 +45,14 @@ public class TaskService {
     }
 
     @Transactional
-    public List<TaskResponseDto> getAllTasks() {
-        return taskRepository.findAll().stream()
-                .map(mapper::toResponseDTO)
-                .toList();
+    @Cacheable(value = "tasks", key = "#pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<TaskResponseDto> getAllTasks(Pageable pageable) {
+        return taskRepository.findAll(pageable)
+                .map(mapper::toResponseDTO);
     }
 
     @Transactional
+    @Cacheable(value = "task", key = "#id")
     public TaskResponseDto getTaskById(Long id) {
         return taskRepository.findById(id)
                 .map(mapper::toResponseDTO)
@@ -54,6 +60,7 @@ public class TaskService {
     }
 
     @Transactional
+    @CacheEvict(value = {"tasks", "task"}, allEntries = true)
     public TaskResponseDto updateTask(Long id, TaskUpdateDto dto) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundTaskException("Task not found with id: " + id));

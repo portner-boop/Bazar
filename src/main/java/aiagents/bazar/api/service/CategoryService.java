@@ -9,6 +9,8 @@ import aiagents.bazar.data.entity.Category;
 import aiagents.bazar.data.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class CategoryService {
     private final CategoryMapper mapper;
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponseDto create(CategoryCreateDto dto) {
         Category category = mapper.fromCreateDto(dto);
         Category saved = repository.save(category);
@@ -28,6 +31,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @Cacheable(value = "categories", key = "'all'")
     public List<CategoryResponseDto> getAll() {
         return repository.findAll().stream()
                 .map(mapper::toResponseDTO)
@@ -35,6 +39,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @Cacheable(value = "categories", key = "#id")
     public CategoryResponseDto getById(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponseDTO)
@@ -42,6 +47,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponseDto update(Long id, CategoryUpdateDto dto) {
         Category category = repository.findById(id)
                 .orElseThrow(() -> new NotFoundCategoryException("Category not found with id: " + id));
@@ -51,6 +57,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new NotFoundCategoryException("Category not found with id: " + id);

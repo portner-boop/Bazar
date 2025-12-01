@@ -23,7 +23,11 @@ import aiagents.bazar.data.entity.UserRole;
 @Getter
 @Setter
 @Entity
-@Table(name = "telegram_user")
+@Table(name = "telegram_user", indexes = {
+    @Index(name = "idx_telegram_user_telegram_id", columnList = "telegram_id"),
+    @Index(name = "idx_telegram_user_role", columnList = "role"),
+    @Index(name = "idx_telegram_user_created_at", columnList = "created_at")
+})
 public class TelegramUser {
 
     @Id
@@ -71,7 +75,7 @@ public class TelegramUser {
     private List<Claim> claims;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @Column(name = "role", nullable = false, columnDefinition = "varchar(255) default 'USER'")
     private UserRole role = UserRole.USER;
 
 }

@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
     
-    @EntityGraph(attributePaths = {"images"})
+    @EntityGraph(attributePaths = {"images", "category", "telegramUser"})
     Optional<Task> findById(Long id);
 }

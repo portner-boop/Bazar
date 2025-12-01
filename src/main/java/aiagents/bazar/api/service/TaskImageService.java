@@ -62,10 +62,7 @@ public class TaskImageService {
         TaskImage image = taskImageRepository.findById(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
 
-        // Delete from MinIO
         storageService.deleteImage(image.getS3Key());
-
-        // Delete from database
         taskImageRepository.delete(image);
     }
 

@@ -1,5 +1,6 @@
 package aiagents.bazar.api.controller;
 
+import aiagents.bazar.api.dto.PageResponseDto;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserResponseDto;
 import aiagents.bazar.api.dto.telegramuser.TelegramUserUpdateDto;
 import aiagents.bazar.api.dto.telegramuser.UserRoleUpdateDto;
@@ -7,11 +8,12 @@ import aiagents.bazar.api.service.TelegramUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -22,8 +24,22 @@ public class TelegramUserController {
     private final TelegramUserService service;
 
     @GetMapping
-    public ResponseEntity<List<TelegramUserResponseDto>> getAllUsers() {
-        return ResponseEntity.ok(service.getAllUsers());
+    public ResponseEntity<PageResponseDto<TelegramUserResponseDto>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TelegramUserResponseDto> result = service.getAllUsers(pageable);
+        PageResponseDto<TelegramUserResponseDto> response = PageResponseDto.<TelegramUserResponseDto>builder()
+                .content(result.getContent())
+                .page(result.getNumber())
+                .size(result.getSize())
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .first(result.isFirst())
+                .last(result.isLast())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

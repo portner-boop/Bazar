@@ -3,6 +3,7 @@ package aiagents.bazar.api.dto.task;
 import aiagents.bazar.data.entity.EscrowStatus;
 import aiagents.bazar.data.entity.RewardType;
 import aiagents.bazar.data.entity.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 public class TaskResponseDto {
     private Long id;
     private String title;

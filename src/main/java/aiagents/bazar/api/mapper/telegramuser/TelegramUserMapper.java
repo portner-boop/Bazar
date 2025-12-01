@@ -17,7 +17,7 @@ public class TelegramUserMapper {
         telegramUser.setUserName(user.getUserName());
         telegramUser.setTelegramId(user.getId());
         telegramUser.setLanguageCode(user.getLanguageCode());
-        telegramUser.setRole(UserRole.USER); // Default role for new users
+        telegramUser.setRole(UserRole.USER);
         return telegramUser;
     }
 

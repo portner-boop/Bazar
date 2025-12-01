@@ -18,7 +18,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "task")
+@Table(name = "task", indexes = {
+    @Index(name = "idx_task_region", columnList = "region"),
+    @Index(name = "idx_task_status", columnList = "status"),
+    @Index(name = "idx_task_category_id", columnList = "category_id"),
+    @Index(name = "idx_task_telegram_user", columnList = "telegram_user"),
+    @Index(name = "idx_task_created_at", columnList = "created_at"),
+    @Index(name = "idx_task_status_created_at", columnList = "status, created_at")
+})
 public class Task {
 
     @Id

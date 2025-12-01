@@ -35,10 +35,7 @@ public class MinIOConfig {
                     .endpoint(endpoint)
                     .credentials(accessKey, secretKey)
                     .build();
-
-            // Initialize bucket if it doesn't exist
             initializeBucket(client);
-
             log.info("MinIO client initialized successfully. Endpoint: {}", endpoint);
             return client;
         } catch (Exception e) {
@@ -60,7 +57,6 @@ public class MinIOConfig {
                         .build());
                 log.info("Created MinIO bucket: {}", bucketName);
 
-                // Set bucket policy to allow public read access for images
                 String policy = String.format(
                     "{\n" +
                     "  \"Version\": \"2012-10-17\",\n" +

@@ -2,6 +2,7 @@ package aiagents.bazar.api.service;
 
 import io.minio.*;
 import io.minio.errors.MinioException;
+import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,21 +25,21 @@ public class StorageService {
     @Value("${minio.endpoint}")
     private String endpoint;
 
+    @Value("${minio.public-endpoint:${minio.endpoint}}")
+    private String publicEndpoint;
+
     public String uploadImage(MultipartFile file, Long taskId) {
         try {
-            // Validate file
             if (file == null || file.isEmpty()) {
                 throw new IllegalArgumentException("File is empty or null");
             }
 
-            // Generate unique S3 key
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename != null && originalFilename.contains(".")
                     ? originalFilename.substring(originalFilename.lastIndexOf("."))
                     : ".jpg";
             String s3Key = "tasks/" + taskId + "/" + UUID.randomUUID() + extension;
 
-            // Upload file to MinIO
             try (InputStream inputStream = file.getInputStream()) {
                 minioClient.putObject(
                         PutObjectArgs.builder()
@@ -81,20 +82,14 @@ public class StorageService {
 
     public String getPublicUrl(String s3Key) {
         try {
-            // Generate presigned URL (valid for 7 days by default)
-            String url = minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.GET)
-                            .bucket(bucketName)
-                            .object(s3Key)
-                            .expiry(60 * 60 * 24 * 7) // 7 days
-                            .build()
-            );
+            // Используем прямой URL, так как bucket публичный
+            // Формат: http://localhost:9000/bazar-images/tasks/1/...
+            String url = publicEndpoint + "/" + bucketName + "/" + s3Key;
+            log.debug("Generated public URL for image: {}", url);
             return url;
         } catch (Exception e) {
             log.error("Error while generating public URL for image", e);
-            // Fallback to direct URL construction
-            return endpoint + "/" + bucketName + "/" + s3Key;
+            return publicEndpoint + "/" + bucketName + "/" + s3Key;
         }
     }
 
